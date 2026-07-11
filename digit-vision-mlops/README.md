@@ -263,7 +263,6 @@ General steps, using **Render** as a concrete example:
    (`--host <your API URL>`) instead of localhost, and paste those results
    in as your final submission numbers.
 
----
 
 ## 8. Video Demo Checklist
 
