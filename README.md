@@ -1,24 +1,16 @@
 # Digit Vision — End-to-End ML Pipeline (MLOps Summative)
 
-**African Leadership University — Machine Learning Pipeline Summative Assignment**
+ **Machine Learning Pipeline Summative Assignment**
 
 An end-to-end MLOps pipeline for classifying handwritten digit **images** (0-9):
 data acquisition → preprocessing → CNN training/evaluation → a retrainable,
 containerized FastAPI service → a Streamlit UI → Docker Compose scaling →
 Locust load testing.
 
-- 🎥 **Video Demo:** `<PASTE YOUR YOUTUBE LINK HERE>`
-- 🌐 **Live API URL:** `<PASTE YOUR DEPLOYED API URL HERE>`
-- 🌐 **Live UI URL:** `<PASTE YOUR DEPLOYED UI URL HERE>`
-- 📦 **GitHub Repo:** `<PASTE YOUR GITHUB REPO URL HERE>`
-
-> These four placeholders are the only things left for you to fill in after
-> you (1) record a screen+camera walkthrough and upload it to YouTube, and
-> (2) push this repo and deploy it — see **Deployment** below for exact
-> steps. Everything else in this repository is complete, tested, and runs
-> end-to-end.
-
----
+- 🎥 **Video Demo:** `<PASTE YOUR YOUTUBE LINK H>`
+- 🌐 **Live API URL:** `<https://digit-vision-api.onrender.com/>`
+- 🌐 **Live UI URL:** `<https://digit-vision-ui.onrender.com/>`
+- 📦 **GitHub Repo:** `<https://github.com/OgayoTK1/-MLops_summatives>`
 
 ## 1. Project Description
 
