@@ -1,8 +1,13 @@
+# Full local/dev environment: training notebook, load testing, EDA plots.
+# NOT used by the Docker images (see requirements-api.txt / requirements-ui.txt),
+# which are split per-service to avoid a real pip dependency conflict:
+# tensorflow-cpu requires protobuf>=6.31, streamlit requires protobuf<6.
+# Splitting means neither container needs both packages installed together.
 tensorflow-cpu==2.21.0
-fastapi==0.115.0
+fastapi==0.139.0
 uvicorn[standard]==0.30.6
-python-multipart==0.0.9
-streamlit==1.38.0
+python-multipart>=0.0.9
+streamlit==1.59.2
 scikit-learn==1.5.2
 pillow==10.4.0
 pandas==2.2.2
@@ -11,3 +16,5 @@ matplotlib==3.9.2
 seaborn==0.13.2
 requests==2.32.3
 locust==2.31.5
+jupyter
+nbconvert
