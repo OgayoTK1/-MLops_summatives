@@ -55,9 +55,9 @@ Full classification report, confusion matrix, and training curves are in
 
 
 digit-vision-mlops/
-
 │
-├── README.md
+├── 
+README.md
 ├── requirements.txt         # full local/dev env (notebook, Locust, EDA)
 ├── requirements-api.txt     # slim deps for the API Docker image (no streamlit)
 ├── requirements-ui.txt      # slim deps for the UI Docker image (no tensorflow)
