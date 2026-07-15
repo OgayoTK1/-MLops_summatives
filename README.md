@@ -1,16 +1,18 @@
-# Digit Vision - End-to-End ML Pipeline (MLOps Summative)
+ Digit Vision - End-to-End ML Pipeline (MLOps Summative)
 
- **Machine Learning Pipeline Summative Assignment**
+**Machine Learning Pipeline Summative Assignment**
 
 An end-to-end MLOps pipeline for classifying handwritten digit **images** (0-9):
 data acquisition → preprocessing → CNN training/evaluation → a retrainable,
 containerized FastAPI service → a Streamlit UI → Docker Compose scaling →
 Locust load testing.
 
--  **Video Demo:** `<>`
--  **Live API URL:** `<https://digit-vision-api.onrender.com/>`
--  **Live UI URL:** `<https://digit-vision-ui.onrender.com/>`
--  **GitHub Repo:** `<https://github.com/OgayoTK1/-MLops_summatives>`
+- **Video Demo:** `<PASTE YOUR YOUTUBE LINK HERE>`
+- **Live API URL:** https://digit-vision-api.onrender.com/
+- **Live UI URL:** https://digit-vision-ui.onrender.com/
+- **GitHub Repo:** https://github.com/OgayoTK1/-MLops_summatives
+
+---
 
 ## 1. Project Description
 
@@ -52,8 +54,6 @@ Full classification report, confusion matrix, and training curves are in
 ---
 
 ## 2. Repository Structure
-
-
 digit-vision-mlops/
 │
 ├── README.md
@@ -97,7 +97,7 @@ digit-vision-mlops/
 ## 3. Setup — Run Locally (no Docker)
 
 ```bash
-git clone 
+git clone https://github.com/OgayoTK1/-MLops_summatives.git
 cd digit-vision-mlops
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
@@ -124,7 +124,7 @@ steps explained and already executed.
 
 ---
 
-## 4. Setup - Run with Docker (scalable)
+## 4. Setup — Run with Docker (scalable)
 
 ```bash
 # Build + start with a single API replica
@@ -148,16 +148,16 @@ embedded DNS + `resolver` directive in `nginx.conf`).
 ## 5. Using the System
 
 ### Predict a single image
-- **UI:** " Predict" tab → upload one PNG/JPG digit image → "Run Prediction".
+- **UI:** "Predict" tab → upload one PNG/JPG digit image → "Run Prediction".
 - **API directly:**
 ```bash
   curl -X POST http://localhost:8000/predict -F "file=@data/test/7/7_0000.png"
 ```
 
 ### Upload bulk data + trigger retraining
-- **UI:** " Upload & Retrain" tab → pick the digit class the batch belongs
+- **UI:** "Upload & Retrain" tab → pick the digit class the batch belongs
   to → upload multiple images → "Upload batch" → once enough new images
-  have accumulated (or any time), click " Trigger Retraining Now".
+  have accumulated (or any time), click "Trigger Retraining Now".
 - **API directly:**
 ```bash
   curl -X POST "http://localhost:8000/upload?label=5" \
@@ -174,7 +174,7 @@ embedded DNS + `resolver` directive in `nginx.conf`).
   uptime, total requests served, and last retrain time.
 
 ### Data visualizations
-- **UI:** " Data Visualizations" tab, or `GET /visualizations` — shows
+- **UI:** "Data Visualizations" tab, or `GET /visualizations` — shows
   class balance, train/test split composition, and average pixel
   intensity per class, each with an interpretation of what it reveals
   about the dataset.
@@ -244,16 +244,51 @@ Any platform that runs Docker containers works (Render, Railway, AWS
 ECS/EC2, GCP Cloud Run, Azure Container Apps, DigitalOcean App Platform).
 General steps, using **Render** as a concrete example:
 
-1.  Repo is pushed to GitHub.
+1. Repo is pushed to GitHub.
 2. On Render: **New → Web Service** → connect the repo → set **Language**
    to **Docker** → **Root Directory** to the folder containing this
-   README (e.g. `digit-vision-mlops` if your repo nests it in a
-   subfolder) → **Dockerfile Path** to `Dockerfile.api` → deploy. Note the
-   resulting URL (this is your API URL).
+   README (`digit-vision-mlops`) → **Dockerfile Path** to `Dockerfile.api`
+   → deploy. Note the resulting URL (this is the API URL).
 3. **New → Web Service** again → same settings but **Dockerfile Path**
    `Dockerfile.ui` → add environment variable `API_URL=<the API URL from
-   step 2>` → deploy.
+   step 2>` → deploy. This gives the UI URL.
+4. Re-run the Locust flood test in Section 6 against the **live** API URL
+   (`--host <API URL>`) instead of localhost for the final report numbers.
+
 
 ---
 
+## 8. Notes on Design Choices
 
+- **Why `load_digits` instead of an external image dataset?** I wanted to
+  spend my time on the actual MLOps engineering — the retraining loop, the
+  API, the Docker scaling, the load testing — rather than on dataset
+  wrangling or waiting on large downloads. `load_digits` ships inside
+  scikit-learn, so it's instantly available and fully reproducible for
+  anyone who clones this repo. Critically, I didn't just use it as raw
+  arrays — I converted it into real PNG files on disk first, so every
+  downstream piece (upload, storage, augmentation, retraining, the
+  `/predict` file-upload endpoint) genuinely operates on image files, the
+  same way it would with any other image dataset. Swapping in a different
+  dataset later only means replacing `build_image_dataset()`; nothing else
+  in `src/`, `api/`, or `ui/` assumes anything beyond "10 classes of 32×32
+  grayscale images."
+- **Train/serve parity:** `preprocess_image()` in `src/preprocessing.py` is
+  the only place resizing/normalization logic lives, and both the
+  notebook's training code and the API's `/predict` endpoint call it. This
+  was a deliberate choice to avoid the classic bug where a model performs
+  well in the notebook but poorly once deployed, simply because the API
+  preprocessed inputs slightly differently.
+- **Retraining trigger:** a manual button (`POST /retrain`) plus an
+  automatic recommendation flag once `RETRAIN_TRIGGER_THRESHOLD` (default
+  25) new images have been uploaded and are pending (`GET /retrain/status`).
+- **Why three requirements files?** During deployment I hit a real pip
+  dependency conflict: `tensorflow-cpu` needs `protobuf>=6.31`, while
+  `streamlit` needs `protobuf<6` at the version I'd originally pinned.
+  Since the API never actually imports Streamlit and the UI never imports
+  TensorFlow, I split the dependencies per service (`requirements-api.txt`,
+  `requirements-ui.txt`) instead of forcing both into one incompatible
+  environment. This also shrinks both Docker images since neither one
+  installs packages it doesn't need. `requirements.txt` remains for local
+  development only (running the notebook, Locust, etc. in one venv), using
+  versions I've verified co-install cleanly together.

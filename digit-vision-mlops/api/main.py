@@ -152,7 +152,8 @@ def _do_retrain():
         model, history, metrics, cm, report = train_model(
             epochs=30, trigger="manual_api_retrain"
         )
-        reload_model()
+        if metrics.get("model_saved", True):
+            reload_model()
         STATE["last_retrain_metrics"] = metrics
         STATE["last_retrain_time"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     finally:
