@@ -76,9 +76,22 @@ def preprocess_image(img: Image.Image) -> np.ndarray:
     """Single shared preprocessing function used by BOTH training and the
     inference API, guaranteeing identical preprocessing in dev and prod.
     Accepts a PIL Image, returns a normalized (IMG_SIZE, IMG_SIZE, 1) array.
+
+    Training images follow the sklearn digits / MNIST convention: a bright
+    stroke on a dark background. A real-world photo of pen-on-paper
+    handwriting is the opposite (dark stroke on a light background), which
+    would confuse the model despite being a perfectly valid image of the
+    right digit. We auto-detect this by mean pixel brightness and invert
+    when the image looks like "mostly light background" - every training
+    image has a mean well under 0.5 (verified empirically), so this never
+    triggers on data that already matches the training convention.
     """
     img = img.convert("L").resize((IMG_SIZE, IMG_SIZE), Image.LANCZOS)
     arr = np.asarray(img, dtype=np.float32) / 255.0
+
+    if arr.mean() > 0.5:
+        arr = 1.0 - arr
+
     arr = arr.reshape(IMG_SIZE, IMG_SIZE, 1)
     return arr
 
