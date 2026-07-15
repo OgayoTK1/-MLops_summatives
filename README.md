@@ -1,4 +1,4 @@
-# Digit Vision — End-to-End ML Pipeline (MLOps Summative)
+# Digit Vision - End-to-End ML Pipeline (MLOps Summative)
 
  **Machine Learning Pipeline Summative Assignment**
 
@@ -52,6 +52,8 @@ Full classification report, confusion matrix, and training curves are in
 ---
 
 ## 2. Repository Structure
+
+
 digit-vision-mlops/
 │
 ├── README.md
@@ -95,12 +97,12 @@ digit-vision-mlops/
 ## 3. Setup — Run Locally (no Docker)
 
 ```bash
-git clone <YOUR_REPO_URL>
+git clone 
 cd digit-vision-mlops
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
-# 1. Build the image dataset (writes real PNGs to data/train, data/test)
+# 1. Build the image dataset (real PNGs to data/train, data/test)
 python3 src/preprocessing.py
 
 # 2. Train the model (saves models/digit_model.keras + models/metrics_history.json)
