@@ -149,13 +149,15 @@ def _do_retrain():
             for fname in os.listdir(src_dir):
                 shutil.move(os.path.join(src_dir, fname), os.path.join(dst_dir, fname))
 
-    model, history, metrics, cm, report = train_model(
+        model, history, metrics, cm, report = train_model(
             epochs=30, trigger="manual_api_retrain"
         )
         if metrics.get("model_saved", True):
             reload_model()
         STATE["last_retrain_metrics"] = metrics
         STATE["last_retrain_time"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    finally:
+        STATE["retrain_in_progress"] = False
 
 
 @app.post("/retrain")
