@@ -22,14 +22,14 @@ import streamlit as st
 API_URL = os.environ.get("API_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Digit Vision MLOps", page_icon="🔢", layout="wide")
-st.title("🔢 Digit Vision — MLOps Dashboard")
+st.title("🔢 Digit Vision - MLOps Dashboard")
 st.caption(f"Backend API: `{API_URL}`")
 
 tab_predict, tab_viz, tab_upload, tab_uptime = st.tabs(
-    ["🔮 Predict", "📊 Data Visualizations", "📤 Upload & Retrain", "⏱️ Model Uptime"]
+    [" Predict", " Data Visualizations", "Upload & Retrain", "⏱ Model Uptime"]
 )
 
-# ---------------------------------------------------------------- PREDICT
+# - PREDICT
 with tab_predict:
     st.subheader("Predict a single handwritten digit")
     st.write("Upload one PNG/JPG image of a handwritten digit (0-9).")
@@ -56,7 +56,7 @@ with tab_predict:
                 except Exception as e:
                     st.error(f"Prediction failed: {e}")
 
-# ---------------------------------------------------------- VISUALIZATIONS
+#  VISUALIZATIONS
 with tab_viz:
     st.subheader("Dataset insights")
     if st.button("Refresh visualizations"):
@@ -101,7 +101,7 @@ with tab_viz:
     except Exception as e:
         st.error(f"Could not load visualizations: {e}")
 
-# ------------------------------------------------------- UPLOAD & RETRAIN
+# UPLOAD & RETRAIN
 with tab_upload:
     st.subheader("Bulk upload new labeled images")
     st.write(
@@ -133,13 +133,13 @@ with tab_upload:
         status = requests.get(f"{API_URL}/retrain/status", timeout=10).json()
         st.write(f"Pending new images: **{status['pending_new_images']}** / threshold {status['threshold']}")
         if status["retrain_recommended"]:
-            st.warning("🔔 Retrain trigger condition met — enough new data has been uploaded.")
+            st.warning("Retrain trigger condition met — enough new data has been uploaded.")
         if status["retrain_in_progress"]:
             st.info("A retraining run is currently in progress...")
     except Exception as e:
         st.error(f"Could not fetch retrain status: {e}")
 
-    if st.button("🚀 Trigger Retraining Now", type="primary"):
+    if st.button("Trigger Retraining Now", type="primary"):
         try:
             resp = requests.post(f"{API_URL}/retrain", timeout=15)
             resp.raise_for_status()
