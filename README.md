@@ -7,7 +7,7 @@ data acquisition → preprocessing → CNN training/evaluation → a retrainable
 containerized FastAPI service → a Streamlit UI → Docker Compose scaling →
 Locust load testing.
 
-- **Video Demo:** `<PASTE YOUR YOUTUBE LINK HERE>`
+- **Video Demo:** `https://youtu.be/NbsHRVzZSV0`
 - **Live API URL:** https://digit-vision-api.onrender.com/
 - **Live UI URL:** https://digit-vision-ui.onrender.com/
 - **GitHub Repo:** https://github.com/OgayoTK1/-MLops_summatives
