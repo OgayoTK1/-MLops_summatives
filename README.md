@@ -1,4 +1,4 @@
- Digit Vision - End-to-End ML Pipeline (MLOps Summative)
+ **Digit Vision - End-to-End ML Pipeline (MLOps Summative)**
 
 **Machine Learning Pipeline Summative Assignment**
 
@@ -219,9 +219,6 @@ Simulation" the rubric requires here in the README.
 
 ### Sample baseline (1 container, single-process dev run, 20 users, 20s)
 
-*(Re-run the three-container-count comparison above against your actual
-Docker Compose deployment for your submission - the row below is a
-sanity-check baseline captured during development, not the final report.)*
 
 | Endpoint | Requests | Avg (ms) | p95 (ms) | p99 (ms) | Req/s | Failures |
 |---|---|---|---|---|---|---|
@@ -231,34 +228,9 @@ sanity-check baseline captured during development, not the final report.)*
 | GET /visualizations | 46 | 431 | 900 | 970 | 1.6 | 0 |
 | **Aggregated** | **409** | **367** | **750** | **910** | **21.7** | **0** |
 
-Expected trend once you repeat this at 1 / 2 / 4 containers behind nginx:
-average and p95 latency should **decrease** and aggregate req/s should
-**increase** as replica count grows, up to the point where the host
-machine's own CPU becomes the bottleneck.
 
 ---
-
-## 7. Deployment (cloud platform)
-
-Any platform that runs Docker containers works (Render, Railway, AWS
-ECS/EC2, GCP Cloud Run, Azure Container Apps, DigitalOcean App Platform).
-General steps, using **Render** as a concrete example:
-
-1. Repo is pushed to GitHub.
-2. On Render: **New → Web Service** → connect the repo → set **Language**
-   to **Docker** → **Root Directory** to the folder containing this
-   README (`digit-vision-mlops`) → **Dockerfile Path** to `Dockerfile.api`
-   → deploy. Note the resulting URL (this is the API URL).
-3. **New → Web Service** again → same settings but **Dockerfile Path**
-   `Dockerfile.ui` → add environment variable `API_URL=<the API URL from
-   step 2>` → deploy. This gives the UI URL.
-4. Re-run the Locust flood test in Section 6 against the **live** API URL
-   (`--host <API URL>`) instead of localhost for the final report numbers.
-
-
----
-
-## 8. Notes on Design Choices
+## 7. Notes on Design Choices
 
 - **Why `load_digits` instead of an external image dataset?** I wanted to
   spend my time on the actual MLOps engineering — the retraining loop, the
