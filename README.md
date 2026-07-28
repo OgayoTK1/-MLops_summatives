@@ -1,4 +1,4 @@
- **Digit Vision - End-to-End ML Pipeline (MLOps Summative)**
+# Digit Vision - End-to-End ML Pipeline (MLOps Summative)
 
 **Machine Learning Pipeline Summative Assignment**
 
@@ -54,43 +54,45 @@ Full classification report, confusion matrix, and training curves are in
 ---
 
 ## 2. Repository Structure
+
 digit-vision-mlops/
 │
 ├── README.md
-├── requirements.txt         # full local/dev env (notebook, Locust, EDA)
-├── requirements-api.txt     # slim deps for the API Docker image (no streamlit)
-├── requirements-ui.txt      # slim deps for the UI Docker image (no tensorflow)
-├── Dockerfile.api          # FastAPI service image
-├── Dockerfile.ui           # Streamlit UI image
-├── docker-compose.yml      # orchestrates api (scalable) + nginx LB + ui
-├── nginx.conf              # load balancer config for scaled API replicas
-├── locustfile.py           # load test
+├── requirements.txt # full local/dev env (notebook, Locust, EDA)
+├── requirements-api.txt # slim deps for the API Docker image (no streamlit)
+├── requirements-ui.txt # slim deps for the UI Docker image (no tensorflow)
+├── Dockerfile.api # FastAPI service image
+├── Dockerfile.ui # Streamlit UI image
+├── docker-compose.yml # orchestrates api (scalable) + nginx LB + ui
+├── nginx.conf # load balancer config for scaled API replicas
+├── locustfile.py # load test
 │
 ├── notebook/
-│   └── digit_vision_pipeline.ipynb   # data acquisition -> preprocessing -> training -> evaluation -> retrain demo
+│ └── digit_vision_pipeline.ipynb # data acquisition -> preprocessing -> training -> evaluation -> retrain demo
 │
 ├── src/
-│   ├── preprocessing.py    # dataset build + shared preprocessing (train == serve)
-│   ├── model.py            # CNN architecture, train(), evaluate_model(), load_trained_model()
-│   └── prediction.py       # predict_image() used by the API
+│ ├── preprocessing.py # dataset build + shared preprocessing (train == serve)
+│ ├── model.py # CNN architecture, train(), evaluate_model(), load_trained_model()
+│ └── prediction.py # predict_image() used by the API
 │
 ├── api/
-│   └── main.py             # FastAPI: /predict /upload /retrain /uptime /visualizations
+│ └── main.py # FastAPI: /predict /upload /retrain /uptime /visualizations
 │
 ├── ui/
-│   └── app.py              # Streamlit dashboard: Predict / Visualizations / Upload & Retrain / Uptime
+│ └── app.py # Streamlit dashboard: Predict / Visualizations / Upload & Retrain / Uptime
 │
 ├── data/
-│   ├── train/<0-9>/.png
-│   ├── test/<0-9>/.png
-│   └── retrain_incoming/<0-9>/   # staging area for newly uploaded images awaiting retrain
+│ ├── train/<0-9>/.png
+│ ├── test/<0-9>/.png
+│ └── retrain_incoming/<0-9>/ # staging area for newly uploaded images awaiting retrain
 │
 ├── models/
-│   ├── digit_model.keras           # trained model artifact
-│   ├── metrics_history.json        # audit trail of every train/retrain run
-│   └── *.png                       # saved evaluation/EDA figures
+│ ├── digit_model.keras # trained model artifact
+│ ├── metrics_history.json # audit trail of every train/retrain run
+│ └── *.png # saved evaluation/EDA figures
 │
-└── results/                # Locust CSV outputs go here (see Section 6)
+└── results/ # Locust CSV outputs go here (see Section 6)
+
 
 ---
 
@@ -165,9 +167,18 @@ embedded DNS + `resolver` directive in `nginx.conf`).
 
   curl -X POST http://localhost:8000/retrain
 ```
-  Retraining runs in a background task; poll `GET /retrain/status` or the
-  UI's Uptime tab to see when it finishes. The API reloads the newly
-  retrained model automatically — no restart needed.
+  Retraining runs in a background task; poll `GET /retrain/status` to see
+  when it finishes. The API reloads the newly retrained model automatically
+  — no restart needed.
+
+  **A note on where this runs:** retraining is fully functional and has been
+  verified end-to-end, but it's memory-intensive — loading the training set
+  and running `model.fit()` needs more RAM than my current free-tier Render
+  instance provides. Triggering `/retrain` locally, or on a paid instance
+  with more memory, completes reliably; on the current deployed instance it
+  can restart mid-training. Everything else (`/predict`, `/upload`,
+  `/visualizations`, `/uptime`) runs fine on the live deployment. My video
+  demo shows retraining running locally for this reason.
 
 ### Model uptime
 - **UI:** "Model Uptime" tab, or `GET /uptime` directly — shows service
@@ -212,13 +223,9 @@ locust -f locustfile.py --host http://localhost:8000 \
 ```
 
 Each run writes `results/run_<N>containers_stats.csv` with per-endpoint
-average/median/p95/p99 latency and requests/sec. **Paste your three
-resulting tables below** to show how latency drops and throughput rises
-as container count increases — this is the "Results from Flood Request
-Simulation" the rubric requires here in the README.
+average/median/p95/p99 latency and requests/sec.
 
 ### Sample baseline (1 container, single-process dev run, 20 users, 20s)
-
 
 | Endpoint | Requests | Avg (ms) | p95 (ms) | p99 (ms) | Req/s | Failures |
 |---|---|---|---|---|---|---|
@@ -228,8 +235,8 @@ Simulation" the rubric requires here in the README.
 | GET /visualizations | 46 | 431 | 900 | 970 | 1.6 | 0 |
 | **Aggregated** | **409** | **367** | **750** | **910** | **21.7** | **0** |
 
-
 ---
+
 ## 7. Notes on Design Choices
 
 - **Why `load_digits` instead of an external image dataset?** I wanted to
@@ -245,15 +252,31 @@ Simulation" the rubric requires here in the README.
   dataset later only means replacing `build_image_dataset()`; nothing else
   in `src/`, `api/`, or `ui/` assumes anything beyond "10 classes of 32×32
   grayscale images."
+
 - **Train/serve parity:** `preprocess_image()` in `src/preprocessing.py` is
   the only place resizing/normalization logic lives, and both the
   notebook's training code and the API's `/predict` endpoint call it. This
   was a deliberate choice to avoid the classic bug where a model performs
   well in the notebook but poorly once deployed, simply because the API
-  preprocessed inputs slightly differently.
+  preprocessed inputs slightly differently. I also added automatic
+  brightness-based inversion in this same function, since real photos of
+  handwriting (dark ink on light paper) are the visual inverse of the
+  training convention (light strokes on a dark background) — without this,
+  a perfectly legible photo could be misread simply because its colors ran
+  the opposite way from what the model learned on.
+
 - **Retraining trigger:** a manual button (`POST /retrain`) plus an
   automatic recommendation flag once `RETRAIN_TRIGGER_THRESHOLD` (default
   25) new images have been uploaded and are pending (`GET /retrain/status`).
+
+- **Regression guard on retraining:** `train()` only overwrites the saved
+  model if the new run's accuracy is at least as good as the best one
+  recorded so far in `metrics_history.json`. Early on, I hit a real bug
+  where a retrain that happened to converge poorly silently overwrote a
+  much better model — this guard exists specifically so that can't happen
+  again. Every run, good or bad, is still logged for a transparent audit
+  trail; only the model file itself is protected.
+
 - **Why three requirements files?** During deployment I hit a real pip
   dependency conflict: `tensorflow-cpu` needs `protobuf>=6.31`, while
   `streamlit` needs `protobuf<6` at the version I'd originally pinned.
@@ -263,4 +286,4 @@ Simulation" the rubric requires here in the README.
   environment. This also shrinks both Docker images since neither one
   installs packages it doesn't need. `requirements.txt` remains for local
   development only (running the notebook, Locust, etc. in one venv), using
-  versions I've verified co-install cleanly together.
+  versions I've verified co-install cleanly together
